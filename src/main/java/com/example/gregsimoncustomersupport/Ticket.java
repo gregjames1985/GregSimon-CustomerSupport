@@ -1,6 +1,7 @@
 package com.example.gregsimoncustomersupport;
 
 import java.util.HashMap;
+import java.util.Set;
 
 public class Ticket {
     public String getCustomerName() {
@@ -60,8 +61,8 @@ public class Ticket {
     public String getIndividualAttachment(int indexValue){
         //get Individual attachment
         // get the key set
-        Set<Integer> keySet = this.attachments.keySet();
-        Integer[] keyArray = keySet.toArray(new Integer[keySet.size()]);
+        Set<String> keySet = this.attachments.keySet();
+        Integer[] keyArray = ((Set<?>) keySet).toArray(new Integer[keySet.size()]);
         // taking input of index
         Integer index = indexValue;
         Integer key = keyArray[index - 1];
