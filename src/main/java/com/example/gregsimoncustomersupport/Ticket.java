@@ -4,6 +4,10 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class Ticket {
+    public Ticket() {
+
+    }
+
     public String getCustomerName() {
         return customerName;
     }
@@ -32,7 +36,7 @@ public class Ticket {
         return attachments;
     }
 
-    public void setAttachments(HashMap<String, String> attachments) {
+    public void setAttachments(int ticket_ID, HashMap<String, String> attachments) {
         this.attachments = attachments;
     }
 
@@ -46,9 +50,6 @@ public class Ticket {
         this.Subject = Subject;
         this.bodyOfTicket = bodyOfTicket;
         this.attachments = attachments;
-    }
-    public void Tickets(){
-
     }
     public void addAttactment(String attachmentTitle, String attachmentBody){
         //adds attachment

@@ -9,15 +9,15 @@ public class Attachment {
         this.name = name;
     }
 
-    public byte getContents() {
+    public byte[] getContents() {
         return contents;
     }
 
-    public void setContents(byte contents) {
+    public void setContents(byte[] contents) {
         this.contents = contents;
     }
 
     private String name;
 
-    private byte contents;
+    private byte[] contents;
 }
