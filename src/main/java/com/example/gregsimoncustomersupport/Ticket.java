@@ -1,5 +1,6 @@
 package com.example.gregsimoncustomersupport;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -32,46 +33,42 @@ public class Ticket {
         this.bodyOfTicket = bodyOfTicket;
     }
 
-    public HashMap<String, String> getAttachments() {
+    public HashMap<String, Attachment> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(int ticket_ID, HashMap<String, String> attachments) {
+    public void setAttachments(int ticket_ID, HashMap<String, Attachment> attachments) {
         this.attachments = attachments;
     }
 
     String customerName;
     String Subject;
     String bodyOfTicket;
-    HashMap<String,String> attachments = new HashMap<>();
+    HashMap<String, Attachment> attachments = new HashMap<String, Attachment>();
 
-    public Ticket(String customerName, String Subject, String bodyOfTicket, HashMap<String,String> attachments){
+    public Ticket(String customerName, String Subject, String bodyOfTicket, HashMap<String, Attachment> attachments){
         this.customerName = customerName;
         this.Subject = Subject;
         this.bodyOfTicket = bodyOfTicket;
         this.attachments = attachments;
     }
-    public void addAttactment(String attachmentTitle, String attachmentBody){
-        //adds attachment
-        this.attachments.put(attachmentTitle, attachmentBody);
+    public void addAttachment(Attachment attachment)
+    {
+        this.attachments.put(attachment.getName(), attachment);
     }
     public int getNumberOfAttachments(){
         //Get the Number of attachments
         return this.attachments.size();//get Individual attachment
     }
-    public String getIndividualAttachment(int indexValue){
-        //get Individual attachment
-        // get the key set
-        Set<String> keySet = this.attachments.keySet();
-        Integer[] keyArray = ((Set<?>) keySet).toArray(new Integer[keySet.size()]);
-        // taking input of index
-        Integer index = indexValue;
-        Integer key = keyArray[index - 1];
+    public Attachment getIndividualAttachment(String indexValue){
         return this.attachments.get(indexValue);
     }
-    public HashMap<String, String> getAllAttachments(){
+    public Collection<Attachment> getAllAttachments(){
         //get All attachment
-       return this.attachments;
+        return this.attachments.values();
+    }
+    public boolean hasAttachment(){
+        return attachments != null;
     }
 
 

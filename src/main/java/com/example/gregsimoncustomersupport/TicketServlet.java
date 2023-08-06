@@ -1,6 +1,7 @@
 package com.example.gregsimoncustomersupport;
 
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,7 +33,7 @@ public class TicketServlet extends HttpServlet {
             }
             switch(action){
                 case "createTicket" -> showTicketForm(request,response);
-                case "viewTicket" -> viewTicket(request,response);
+                case "view" -> viewTicket(request,response);
                 case "download" -> downloadAttachment(request,response);
                 default -> listTickets(request,response);
 
@@ -44,7 +45,7 @@ public class TicketServlet extends HttpServlet {
 
         PrintWriter out = response.getWriter();
 
-        out.println("<html><body><h2>BlogPost</h2>");
+        out.println("<html><body><h2>Tickets</h2>");
         out.println("<a href=\"ticket?action=createTicket\">Create Ticket</a><br><br>");
 
         //list out tickets
@@ -64,19 +65,74 @@ public class TicketServlet extends HttpServlet {
 
     }
 
-    private void downloadAttachment(HttpServletRequest request, HttpServletResponse response) {
+    private void downloadAttachment(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String idString = request.getParameter("ticketId");
+        Ticket ticket = getTicket(idString, response);
+
+        String name = request.getParameter("attachment");
+        if(name == null){
+            response.sendRedirect("ticket?action=view&ticketID="+ idString);
+        }
+
+        HashMap<String, Attachment> attachment = ticket.getAttachments();
+        if(attachment == null){
+            response.sendRedirect("ticket?action=view&ticketId=" + idString);
+            return;
+        }
+        response.setHeader("Content-Disposition", "attachment; filename=" + Attachment.getName());
+        response.setContentType("application/octet-stream");
+
+        ServletOutputStream out = response.getOutputStream();
+        out.write(Attachment.getContents());
     }
 
-    private void viewTicket(HttpServletRequest request, HttpServletResponse response) {
+    private Ticket getTicket(String idString, HttpServletResponse response)throws ServletException, IOException{
+        if(idString == null || idString.length() ==0){
+            response.sendRedirect("ticket");
+            return null;
+        }
+        try{
+            int id = Integer.parseInt(idString);
+            Ticket ticket = TicketDB.get(id);
+            if(ticket == null){
+                response.sendRedirect("ticket");
+                return null;
+            }
+        }
+        catch(Exception e){
+            response.sendRedirect("ticket");
+            return null;
+        }
+        return null;
+    }
+
+    private void viewTicket(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException  {
+            String idString = request.getParameter("ticketId");
+
+
+                Ticket ticket = getTicket(idString,response);
+
+                PrintWriter out = response.getWriter();
+                out.println("<html><body><h2>Ticket Created</h2>");
+                out.println("<h3>" + ticket.getSubject() + "<h3>");
+                out.println("<p>Name:"+ticket.getCustomerName() + "</p>");
+                out.println("<p>Body:"+ticket.getBodyOfTicket() + "</p>");
+
+                if(ticket.hasAttachment()){
+                    out.println("<a href=\"ticket?action=download&ticketId=" + idString + "&image=\">image</a><br/><br/>");
+                }
+                out.println("<a href=\"ticket\">Return to ticket list</a>");
+                out.println("</body></html>");
     }
 
     private void showTicketForm(HttpServletRequest request, HttpServletResponse response)throws ServletException, IOException {
         PrintWriter out = response.getWriter();
         out.println("<form method=\"POST\" action=\"ticket\" enctype=\"multipart/form-data\" class=\"form-horizontal\">");
                 out.println("<fieldset>");
+                out.println("<input type=\"hidden\" name=\"action\" value=\"create\">");
 
 
-                out.println("<legend>Form Name</legend>");
+        out.println("<legend>Form Name</legend>");
 
 
                 out.println("<div class=\"form-group\">");
@@ -132,13 +188,13 @@ public class TicketServlet extends HttpServlet {
             action = "list";
         }
         switch(action){
-            case "create" -> createTicket(request,response);
+            case "create" -> createTickets(request,response);
             default -> response.sendRedirect("ticket");
 
         }
     }
 
-    private void createTicket(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
+    private void createTickets(HttpServletRequest request, HttpServletResponse response) throws ServletException,IOException {
         Ticket ticket = new Ticket();
         ticket.setCustomerName(request.getParameter("customer"));
         ticket.setSubject(request.getParameter("subject"));
@@ -146,18 +202,18 @@ public class TicketServlet extends HttpServlet {
 
 
         Part file = request.getPart("attachment");
-        if (file != null){
-            HashMap<String, String> attachment = this.processAttachment(file);
-                if(attachment != null){
-                    ticket.setAttachments(Ticket_ID,attachment);
-                }
+        if(file != null && file.getSize() > 0)
+        {
+            Attachment attachment = this.processAttachment(file);
+            if(attachment != null)
+                ticket.addAttachment(attachment);
         }
         int id;
         synchronized(this){
             id = this.Ticket_ID++;
             TicketDB.put(id, ticket);
         }
-        response.sendRedirect("blog?action=view&ticketId=" + id);
+        response.sendRedirect("ticket?action=view&ticketId=" + id);
 
     }
 

@@ -1,7 +1,7 @@
 package com.example.gregsimoncustomersupport;
 
 public class Attachment {
-    public String getName() {
+    public static String getName() {
         return name;
     }
 
@@ -9,7 +9,7 @@ public class Attachment {
         this.name = name;
     }
 
-    public byte[] getContents() {
+    public static byte[] getContents() {
         return contents;
     }
 
@@ -17,7 +17,7 @@ public class Attachment {
         this.contents = contents;
     }
 
-    private String name;
+    private static String name;
 
-    private byte[] contents;
+    private static byte[] contents;
 }
